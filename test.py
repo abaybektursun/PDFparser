@@ -10,7 +10,7 @@ from pdfminer.pdfinterp   import PDFPageInterpreter
 from pdfminer.pdfdevice   import PDFDevice
 from pdfminer.layout      import LAParams
 from pdfminer.converter   import PDFPageAggregator
-from pdfminer.layout      import LTTextBox, LTTextLine, LTFigure, LTImage, LTTextLineHorizontal, LTTextBoxHorizontal, LTChar, LTRect, LTLine\
+from pdfminer.layout      import LTTextBox, LTTextLine, LTFigure, LTImage, LTTextLineHorizontal, LTTextBoxHorizontal, LTChar, LTRect, LTLine
 
 # This will be written to a file
 layoutStream = []
@@ -63,7 +63,7 @@ def parsing(pdfPath, pdfFileName):
         fileOut.write(str(line))
 
     fp.close()  
-
+    del layoutStream[:]
     
 pdfPath = r'C:\Projects\PDFparser\samplePDFs'
 pdfFileNames = [f for f in listdir(pdfPath) if isfile(join(pdfPath, f))]
