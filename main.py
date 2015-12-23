@@ -1,5 +1,7 @@
-from os import listdir
-from os.path import isfile, join
+import os
+from os      import listdir
+from os.path import isfile, join,exists
+from os      import makedirs
 
 from pdfminer.pdfparser   import PDFParser
 from pdfminer.pdfdocument import PDFDocument
@@ -15,9 +17,9 @@ from pdfminer.layout      import LTTextBox, LTTextLine, LTFigure, LTImage, LTTex
 # This will be written to a file
 layoutStream = []
 
+# Convert the given unicode string to a bytestring, using the standard encoding, unless it's already a bytestring
 def to_bytestring (s, enc='utf-8'):
-    """Convert the given unicode string to a bytestring, using the standard encoding,
-    unless it's already a bytestring"""
+
     if s:
         if isinstance(s, str):
             return s
@@ -48,25 +50,34 @@ def parsing(pdfPath, pdfFileName):
     laparams    = LAParams()
     device      = PDFPageAggregator(rsrcmgr, laparams=laparams)
     interpreter = PDFPageInterpreter(rsrcmgr, device)
+    pathOut     = r'C:\Projects\PDFparser\pageLayout'
+    layoutName  = pdfFileName.split('.', 1)[0].replace(' ','_')
     
-    for page in PDFPage.create_pages(document):
+    # Create a folder for each pdf file layout
+    # do not forget to remove extension of the file
+    if not os.path.exists(layoutName):
+        os.makedirs(pathOut + '\\' + layoutName)
+    for pageNum, page in enumerate(PDFPage.create_pages(document)):
         interpreter.process_page(page)
         layout = device.get_result()
         parse_layout(layout)
-    
-    pathOut = r'C:\Projects\PDFparser\PostScriptStream'
-    
-    # .pmlo stands for PDFminer Layout
-    fileOut = open(pathOut + '\\' + pdfFileName.replace('.pdf','.pmlo'),'w')
-    
-    for line in layoutStream:
-        fileOut.write(str(line))
+
+        # .pmlo stands for PDFminer Layout
+        fileOut = open(pathOut + '\\' + layoutName + '\\' + str(pageNum + 1) + '.pmlo','w')
+        
+        for line in layoutStream:
+            fileOut.write(str(line))
+        
+        #Start a new page
+        del layoutStream[:]  
 
     fp.close()  
-    del layoutStream[:]
+    
     
 pdfPath = r'C:\Projects\PDFparser\samplePDFs'
 pdfFileNames = [f for f in listdir(pdfPath) if isfile(join(pdfPath, f))]
 for pdfFileName in pdfFileNames:
     parsing(pdfPath, pdfFileName)
+    
+# I like beans and such
     
