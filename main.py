@@ -69,7 +69,7 @@ def parsing(pdfPath, pdfFileName):
             fileOut.write(str(line))
 
         #Start a new page
-        del layoutStream[:]  
+        del layoutStream[:]
 
     fp.close()  
     

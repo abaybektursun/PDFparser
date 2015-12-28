@@ -1,17 +1,29 @@
 # This script cleans the layout like Tide cleans your pants
-import re
 #/LOElement(.+?)/g
-
 import os
-from os      import listdir
+import re
+import cPickle as pickle
+
 from os.path import isfile, join,exists
 from os      import makedirs
+from os      import listdir
 from os      import walk
+
+
+
+class PMLO:
+    def __init__(self, rawData = None):
+        if rawData is None:
+            y       = 0
+            x       = 0
+            width   = 0
+            height  = 0
+            content = []
+            type    = ''
 
 #debug###############
 recursionStack = 0
 #debug###############
-
 
 # Watch out, we got 'recursion' over here                                                                                                                                                                                                                                                                                                                                           what?
 def shifter(line,layoutElements, recursionStack):
@@ -19,10 +31,10 @@ def shifter(line,layoutElements, recursionStack):
     #debug#############
     recursionStack += 1
     #debug#############
-    
+
     tempList    = []
     replaceLine = ''
-    
+
     #Split the line when a layout element is encountered
     tempList = line.split(layoutElements[0])
 
@@ -48,12 +60,12 @@ def shifter(line,layoutElements, recursionStack):
 
     if len(layoutElements) > 0:
         replaceLine = shifter(replaceLine,layoutElements, recursionStack)
-        
+
     #debug##################################################
     #print('Stack #' + str(recursionStack) + ' Returned!\n')
     #print('Results: ' + '\n\n' + replaceLine)
     #debug##################################################
-    
+
     return replaceLine   
 
 # This Just creates the list of possible LO Elements
@@ -78,25 +90,40 @@ for a_layoutFolderPath in allLayouts:
     cleanPageLayoutPath = r'C:\Projects\PDFparser\cleanPageLayout'
     cleanLayoutName     = a_layoutFolderPath.split('\\')[-1]
     layoutPages         = [f for f in listdir(a_layoutFolderPath) if isfile(join(a_layoutFolderPath, f))]
-    
+
     if not os.path.exists(cleanPageLayoutPath + '\\' + cleanLayoutName):
         os.makedirs(cleanPageLayoutPath + '\\' + cleanLayoutName)
-    
+
     for a_page in layoutPages:
-    
+
         #debug###############
         #print('\t' + a_page)
         #debug###############
-        
+
         layoutFile = open(a_layoutFolderPath + '\\' + a_page)
         for index, line in enumerate(layoutFile):
             layoutElementsSwapper = list(layoutElements)
             outPageList.append(shifter(line,layoutElements, recursionStack))
             layoutElements = list(layoutElementsSwapper)
-        
+
         outPageFile = open(cleanPageLayoutPath + '\\' + cleanLayoutName + '\\' + a_page, 'w')
         
-        for line in outPageList:
+        # Make each element correspond to a line
+        outPageListLines = []
+        for element in outPageList:
+            if element.count('\n') > 1:
+                for a_line in element.split('\n'):
+                    #print(a_line)
+                    outPageListLines.append(a_line + '\n')
+            else:
+                #print(element)
+                outPageListLines.append(element)
+        
+        # Write the results to a file
+        for line in outPageListLines:
             outPageFile.write(str(line))
-            
-        outPageList = []
+
+        del outPageList[:] 
+        del outPageListLines[:]
+
+
