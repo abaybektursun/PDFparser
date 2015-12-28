@@ -1,4 +1,5 @@
 import os
+
 from os      import listdir
 from os.path import isfile, join,exists
 from os      import makedirs
@@ -54,7 +55,6 @@ def parsing(pdfPath, pdfFileName):
     layoutName  = pdfFileName.split('.', 1)[0].replace(' ','_')
     
     # Create a folder for each pdf file layout
-    # do not forget to remove extension of the file
     if not os.path.exists(layoutName):
         os.makedirs(pathOut + '\\' + layoutName)
     for pageNum, page in enumerate(PDFPage.create_pages(document)):
@@ -67,7 +67,7 @@ def parsing(pdfPath, pdfFileName):
         
         for line in layoutStream:
             fileOut.write(str(line))
-        
+
         #Start a new page
         del layoutStream[:]  
 
@@ -78,6 +78,4 @@ pdfPath = r'C:\Projects\PDFparser\samplePDFs'
 pdfFileNames = [f for f in listdir(pdfPath) if isfile(join(pdfPath, f))]
 for pdfFileName in pdfFileNames:
     parsing(pdfPath, pdfFileName)
-    
-# I like beans and such
     
