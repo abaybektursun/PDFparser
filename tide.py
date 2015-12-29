@@ -3,6 +3,7 @@ import os
 import re
 import cPickle as pickle
 
+
 #Temp
 from Tkinter import *
 
@@ -11,19 +12,27 @@ from os      import makedirs
 from os      import listdir
 from os      import walk
 
+from time    import sleep
+
 
 # PDF Miner Layout Object 
 class PMLO:
     def __init__(self, rawData):
-        self.y       = 0
-        self.x       = 0
-        self.width   = 0
-        self.height  = 0
+        self.y       = 0.0
+        self.x       = 0.0
+        self.width   = 0.0
+        self.height  = 0.0
         self.content = ''
         self.type    = ''
-            
-
-#debug###############
+        
+        self.type    = rawData.split('(')[0]
+        coords       = rawData.split('(')[1].replace(')','').split(',')
+        self.x       = float(coords[0])
+        self.y       = float(coords[1])
+        self.width   = float(coords[2])
+        self.height  = float(coords[3])
+                     
+#debug##self.height#############
 recursionStack = 0
 #debug###############
 
@@ -152,11 +161,28 @@ for a_layoutFolderPath in allLayouts:
         # Write the results to a file
         for line in outPageListLines:
             outPageFile.write(str(line))
-            
         
-        for an_obj in listPMLO:
-            print(an_obj.content)
+        # Debug ##################
+        root = Tk()
+        y_dimension = 793.6801
+        frame = Canvas(root, width=617.7601, height=y_dimension)
+        frame.pack()
+        root.update_idletasks()
         
+        for index, an_obj in enumerate(listPMLO):
+            sleep(0.1)
+            the_color = '#' + str( (306000 + index * 3) )
+            #frame.delete("all")
+            frame.create_rectangle(an_obj.width, an_obj.height, an_obj.x, an_obj.y, fill=the_color)
+            # force widget to display
+            frame.pack()
+            # force refresh of the widget to be sure that thing are displayed
+            frame.update_idletasks()
+            #print(an_obj.content)
+
+        #root.quit()
+        root.destroy()
+        # Debug ##################
         
         del outPageList[:]
         del outPageListLines[:]
