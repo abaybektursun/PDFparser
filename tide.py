@@ -1,8 +1,10 @@
-# This script cleans the layout like Tide cleans your pants
-#/LOElement(.+?)/g
+# This script cleans the layout like Tide(c) cleans your pants
 import os
 import re
 import cPickle as pickle
+
+#Temp
+from Tkinter import *
 
 from os.path import isfile, join,exists
 from os      import makedirs
@@ -10,22 +12,22 @@ from os      import listdir
 from os      import walk
 
 
-
+# PDF Miner Layout Object 
 class PMLO:
-    def __init__(self, rawData = None):
-        if rawData is None:
-            y       = 0
-            x       = 0
-            width   = 0
-            height  = 0
-            content = []
-            type    = ''
+    def __init__(self, rawData):
+        self.y       = 0
+        self.x       = 0
+        self.width   = 0
+        self.height  = 0
+        self.content = ''
+        self.type    = ''
+            
 
 #debug###############
 recursionStack = 0
 #debug###############
 
-# Watch out, we got 'recursion' over here                                                                                                                                                                                                                                                                                                                                           what?
+# Watch out, we got recursion over here                                                                                                                                                                                                                                                                                                                                           what?
 def shifter(line,layoutElements, recursionStack):
 
     #debug#############
@@ -55,7 +57,7 @@ def shifter(line,layoutElements, recursionStack):
                 replaceLine = replaceLine + element
             else:
                 replaceLine = replaceLine + '\n' + layoutElements[0] + element
-            
+
     layoutElements.pop(0)
 
     if len(layoutElements) > 0:
@@ -68,7 +70,7 @@ def shifter(line,layoutElements, recursionStack):
 
     return replaceLine   
 
-# This Just creates the list of possible LO Elements
+# This Just creates a list of possible layout elements
 layoutElementsString = 'LTTextBox, LTTextLine, LTFigure, LTImage, LTTextLineHorizontal, LTTextBoxHorizontal, LTChar, LTRect, LTLine'
 tempLayoutElements   = layoutElementsString.split(', ')
 layoutElements       = []
@@ -107,23 +109,56 @@ for a_layoutFolderPath in allLayouts:
             layoutElements = list(layoutElementsSwapper)
 
         outPageFile = open(cleanPageLayoutPath + '\\' + cleanLayoutName + '\\' + a_page, 'w')
-        
+
         # Make each element correspond to a line
         outPageListLines = []
         for element in outPageList:
             if element.count('\n') > 1:
                 for a_line in element.split('\n'):
+                    #debug
                     #print(a_line)
+                    #debug
                     outPageListLines.append(a_line + '\n')
             else:
+                #debug
                 #print(element)
+                #debug
                 outPageListLines.append(element)
-        
+
+        listPMLO        = []
+        current_obj     = -1
+        for line in outPageListLines:
+            for counter, a_layoutType in enumerate(layoutElements):
+                # There can be only one layout element per line
+                # so if one encountered, start reading, and break from loop 
+                if a_layoutType in line:
+                    current_obj += 1
+
+                    regex_compiled = re.compile(a_layoutType.replace('(','') + "\((.+?)\)")
+                    found = regex_compiled.search(line)
+                    listPMLO.append( PMLO(found.group() ) )
+                    listPMLO[current_obj].content += line.replace(found.group(), '')
+
+                    #debug
+                    #print(found.group())
+                    #debug
+                    
+                    break
+                
+                if counter + 1 == len(layoutElements):
+                    if len(listPMLO) != 0: 
+                        listPMLO[current_obj].content += line
+
         # Write the results to a file
         for line in outPageListLines:
             outPageFile.write(str(line))
-
-        del outPageList[:] 
+            
+        
+        for an_obj in listPMLO:
+            print(an_obj.content)
+        
+        
+        del outPageList[:]
         del outPageListLines[:]
 
 

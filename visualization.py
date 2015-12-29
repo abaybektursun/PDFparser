@@ -45,24 +45,5 @@ w.create_rectangle(613.9201, y_dimension - 792.7199999999999, 613.9201, y_dimens
 
 root.mainloop()
 
-class PMLO:
-    def __init__(self, rawData = None):
-        if rawData is None:
-            y      = 0
-            x      = 0
-            height = 0
-            width  = 0
-            content = []
-            type    = ''
-
-layoutFile = open(r'C:\Projects\PDFparser\cleanPageLayout\03_17_2015_Bennett_MD_Leigh_Anne\1.pmlo', 'r')
 
 
-started_reading = False
-for line in layoutFile:
-    if not started_reading:
-        if layoutType in line:
-            started_reading = True
-        
-            
-            
